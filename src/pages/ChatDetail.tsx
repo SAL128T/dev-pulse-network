@@ -16,24 +16,29 @@ const ChatDetail: React.FC = () => {
   const [newMessage, setNewMessage] = useState('');
   const messagesEndRef = useRef<HTMLDivElement>(null);
   
-  if (!user || !chatId) {
+  // Use the chat constant outside of the early returns
+  const chat = chatId ? getChat(chatId) : undefined;
+  
+  // Early returns for cases where we don't have necessary data
+  if (!user) {
     return null;
   }
-  
-  const chat = getChat(chatId);
   
   if (!chat) {
     navigate('/chats');
     return null;
   }
   
+  // Fixed dependency array to avoid infinite loop
   useEffect(() => {
-    // Mark all messages as read when the chat is opened
-    markChatAsRead(chatId, user.id);
+    if (chatId && user) {
+      // Mark all messages as read when the chat is opened
+      markChatAsRead(chatId, user.id);
+    }
     
     // Scroll to bottom of message list
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
-  }, [chatId, markChatAsRead, user.id, chat?.messages.length]);
+  }, [chatId, user, chat?.messages.length]);
   
   // Get the partner in a 1:1 chat
   const getChatPartnerInfo = () => {
@@ -164,7 +169,7 @@ const ChatDetail: React.FC = () => {
               <Image size={20} />
             </Button>
             <Button 
-              variant="primary" 
+              variant="default" 
               size="icon"
               onClick={handleSendMessage}
               disabled={!newMessage.trim()}

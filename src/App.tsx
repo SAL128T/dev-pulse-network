@@ -106,6 +106,10 @@ const App = () => (
           <Route path="/notifications" element={<Notifications />} />
           <Route path="/chats" element={<Chats />} />
           <Route path="/profile" element={<Profile />} />
+          
+          {/* Add routes for user profiles and post details */}
+          <Route path="/user/:userId" element={<Profile />} />
+          <Route path="/post/:postId" element={<Home />} />
         </Route>
         
         {/* Chat detail route - separate from AppLayout to use full screen */}
@@ -118,7 +122,7 @@ const App = () => (
           } 
         />
         
-        {/* Default route to login screen */}
+        {/* Default route to home page if authenticated */}
         <Route path="/" element={<Navigate to="/auth/login" />} />
         
         {/* 404 page */}

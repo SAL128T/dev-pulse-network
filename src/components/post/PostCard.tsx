@@ -18,22 +18,31 @@ const PostCard: React.FC<PostCardProps> = ({ post }) => {
   const { addNotification } = useNotification();
   const [comment, setComment] = useState('');
   const [showCommentInput, setShowCommentInput] = useState(false);
+  const [hasLiked, setHasLiked] = useState(false);
 
   const handleLike = () => {
     if (!user) return;
     
-    likePost(post.id);
-    
-    // If the user likes someone else's post, add a notification
-    if (user.id !== post.userId) {
-      addNotification({
-        userId: post.userId,
-        type: 'like',
-        fromUserId: user.id,
-        fromUsername: user.username,
-        entityId: post.id,
-        content: `liked your post`,
-      });
+    // Only add a like if user hasn't liked the post yet
+    if (!hasLiked) {
+      likePost(post.id);
+      setHasLiked(true);
+      
+      // If the user likes someone else's post, add a notification
+      if (user.id !== post.userId) {
+        addNotification({
+          userId: post.userId,
+          type: 'like',
+          fromUserId: user.id,
+          fromUsername: user.username,
+          entityId: post.id,
+          content: `liked your post`,
+        });
+      }
+    } else {
+      // In a full implementation, we would remove the like here
+      // For now, we just prevent adding more likes
+      console.log("User has already liked this post");
     }
   };
 
@@ -130,7 +139,7 @@ const PostCard: React.FC<PostCardProps> = ({ post }) => {
       
       <div className="flex justify-between items-center text-sm text-muted-foreground pt-2 border-t border-border">
         <button
-          className="flex items-center p-2 hover:text-primary transition-colors"
+          className={`flex items-center p-2 transition-colors ${hasLiked ? 'text-primary' : 'hover:text-primary'}`}
           onClick={handleLike}
         >
           <Heart size={18} className="mr-1" />
