@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { Heart, MessageSquare, Share2, MoreHorizontal } from 'lucide-react';
@@ -26,7 +27,7 @@ const PostCard: React.FC<PostCardProps> = ({ post }) => {
     setIsLiked(!isLiked);
     
     // Call likePost with the toggle state to either add or remove a like
-    likePost(post.id, isLiked);
+    likePost(post.id);
     
     // Only send notification if liking (not unliking) and if it's someone else's post
     if (!isLiked && user.id !== post.userId) {
@@ -70,15 +71,8 @@ const PostCard: React.FC<PostCardProps> = ({ post }) => {
   };
 
   const formatContent = (content: string) => {
-    const codeBlockRegex = /```([^`]+)```/g;
-    const inlineCodeRegex = /`([^`]+)`/g;
-    
-    let formattedContent = content
-      .replace(codeBlockRegex, '<pre class="bg-muted rounded-md p-3 my-2 font-mono text-sm overflow-x-auto">$1</pre>')
-      .replace(inlineCodeRegex, '<code class="bg-muted rounded-md px-1 py-0.5 font-mono text-xs">$1</code>');
-    
     // Convert newlines to <br> for normal text
-    return formattedContent.replace(/\n/g, '<br>');
+    return content.replace(/\n/g, '<br>');
   };
 
   return (

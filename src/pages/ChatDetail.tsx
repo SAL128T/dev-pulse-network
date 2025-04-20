@@ -4,9 +4,10 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { useAuth } from '@/context/AuthContext';
 import { useChat, Message } from '@/context/ChatContext';
 import { formatDistanceToNow } from 'date-fns';
-import { ArrowLeft, Send, Image } from 'lucide-react';
+import { ArrowLeft, Send, Image, X } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
+import { useToast } from '@/hooks/use-toast';
 
 const ChatDetail: React.FC = () => {
   const { chatId } = useParams<{ chatId: string }>();
@@ -14,7 +15,10 @@ const ChatDetail: React.FC = () => {
   const { user } = useAuth();
   const { getChat, sendMessage, markChatAsRead } = useChat();
   const [newMessage, setNewMessage] = useState('');
+  const [selectedImage, setSelectedImage] = useState<string | null>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+  const { toast } = useToast();
   
   // Use the chat constant outside of the early returns
   const chat = chatId ? getChat(chatId) : undefined;
@@ -59,18 +63,22 @@ const ChatDetail: React.FC = () => {
   const partner = getChatPartnerInfo();
   
   const handleSendMessage = () => {
-    if (newMessage.trim()) {
-      sendMessage(chatId, {
-        senderId: user.id,
-        content: newMessage.trim(),
-      });
-      setNewMessage('');
-      
-      // Scroll to bottom after sending
-      setTimeout(() => {
-        messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
-      }, 100);
-    }
+    // Don't send empty messages, but allow sending just an image
+    if ((!newMessage.trim() && !selectedImage)) return;
+    
+    sendMessage(chatId, {
+      senderId: user.id,
+      content: newMessage.trim(),
+      imageUrl: selectedImage || undefined,
+    });
+    
+    setNewMessage('');
+    setSelectedImage(null);
+    
+    // Scroll to bottom after sending
+    setTimeout(() => {
+      messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+    }, 100);
   };
   
   const handleKeyDown = (e: React.KeyboardEvent) => {
@@ -78,6 +86,34 @@ const ChatDetail: React.FC = () => {
       e.preventDefault();
       handleSendMessage();
     }
+  };
+  
+  const handleImageSelect = () => {
+    fileInputRef.current?.click();
+  };
+
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    if (!file.type.startsWith('image/')) {
+      toast({
+        title: "Invalid file type",
+        description: "Please select an image file",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    const reader = new FileReader();
+    reader.onload = () => {
+      setSelectedImage(reader.result as string);
+    };
+    reader.readAsDataURL(file);
+  };
+
+  const removeSelectedImage = () => {
+    setSelectedImage(null);
   };
   
   return (
@@ -149,6 +185,25 @@ const ChatDetail: React.FC = () => {
         <div ref={messagesEndRef} />
       </div>
       
+      {/* Selected Image Preview */}
+      {selectedImage && (
+        <div className="p-4 border-t border-border bg-card relative">
+          <div className="relative inline-block">
+            <img 
+              src={selectedImage} 
+              alt="Selected" 
+              className="h-24 rounded-md object-cover"
+            />
+            <button 
+              className="absolute -top-2 -right-2 bg-foreground text-background rounded-full p-1"
+              onClick={removeSelectedImage}
+            >
+              <X size={16} />
+            </button>
+          </div>
+        </div>
+      )}
+      
       {/* Message input */}
       <div className="p-4 border-t border-border bg-card sticky bottom-16">
         <div className="flex">
@@ -161,10 +216,18 @@ const ChatDetail: React.FC = () => {
             rows={1}
           />
           <div className="flex ml-2">
+            <input 
+              type="file" 
+              ref={fileInputRef} 
+              onChange={handleFileChange} 
+              accept="image/*" 
+              className="hidden" 
+            />
             <Button 
               variant="ghost" 
               size="icon" 
               className="text-muted-foreground hover:text-foreground"
+              onClick={handleImageSelect}
             >
               <Image size={20} />
             </Button>
@@ -172,7 +235,7 @@ const ChatDetail: React.FC = () => {
               variant="default" 
               size="icon"
               onClick={handleSendMessage}
-              disabled={!newMessage.trim()}
+              disabled={!newMessage.trim() && !selectedImage}
             >
               <Send size={20} />
             </Button>

@@ -28,7 +28,7 @@ type PostsContextType = {
   userPosts: (userId: string) => Post[];
   communityPosts: (communityId: string) => Post[];
   addPost: (post: Omit<Post, 'id' | 'likes' | 'comments' | 'createdAt'>) => void;
-  likePost: (postId: string) => void;
+  likePost: (postId: string, isAlreadyLiked?: boolean) => void;
   addComment: (postId: string, comment: Omit<Comment, 'id' | 'createdAt'>) => void;
 };
 

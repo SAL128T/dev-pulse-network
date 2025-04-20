@@ -3,6 +3,7 @@ import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { Search as SearchIcon, Users, Code, X } from 'lucide-react';
 import { useCommunity } from '@/context/CommunityContext';
+import { usePosts } from '@/context/PostsContext';
 
 type SearchType = 'people' | 'communities' | 'skills';
 
@@ -10,6 +11,8 @@ const Search: React.FC = () => {
   const [searchQuery, setSearchQuery] = useState('');
   const [activeTab, setActiveTab] = useState<SearchType>('people');
   const { communities } = useCommunity();
+  const { posts } = usePosts();
+  const navigate = useNavigate();
   
   // Mock user data for search results
   const mockUsers = [
@@ -47,6 +50,28 @@ const Search: React.FC = () => {
   const filteredSkills = mockSkills.filter(skill => 
     skill.name.toLowerCase().includes(searchQuery.toLowerCase())
   );
+
+  // Function to navigate to a user's profile
+  const handleUserClick = (userId: string) => {
+    navigate(`/user/${userId}`);
+  };
+
+  // Function to find posts with a specific skill
+  const handleSkillClick = (skillName: string) => {
+    // Filter posts that might contain this skill in their content
+    const postsWithSkill = posts.filter(post => 
+      post.content.toLowerCase().includes(skillName.toLowerCase())
+    );
+    
+    // Store the filtered posts in localStorage so they can be retrieved on the home page
+    localStorage.setItem('skillSearchResults', JSON.stringify({
+      skill: skillName,
+      posts: postsWithSkill.map(p => p.id)
+    }));
+    
+    // Navigate to home page with a query parameter
+    navigate(`/?skill=${encodeURIComponent(skillName)}`);
+  };
 
   return (
     <div className="container px-4 max-w-lg mx-auto">
@@ -115,28 +140,30 @@ const Search: React.FC = () => {
             </div>
           ) : (
             filteredUsers.map(user => (
-              <Link to={`/user/${user.id}`} key={user.id}>
-                <div className="dev-card p-3 flex items-center hover:bg-muted/50 transition-colors">
-                  <div className="w-12 h-12 rounded-full overflow-hidden bg-muted mr-3">
-                    {user.profilePic ? (
-                      <img
-                        src={user.profilePic}
-                        alt={user.username}
-                        className="w-full h-full object-cover"
-                      />
-                    ) : (
-                      <div className="w-full h-full flex items-center justify-center bg-primary/10 text-primary">
-                        {user.username.charAt(0).toUpperCase()}
-                      </div>
-                    )}
-                  </div>
-                  
-                  <div>
-                    <h3 className="font-medium">{user.username}</h3>
-                    <p className="text-sm text-muted-foreground">{user.profession}</p>
-                  </div>
+              <div 
+                key={user.id} 
+                className="dev-card p-3 flex items-center hover:bg-muted/50 transition-colors cursor-pointer"
+                onClick={() => handleUserClick(user.id)}
+              >
+                <div className="w-12 h-12 rounded-full overflow-hidden bg-muted mr-3">
+                  {user.profilePic ? (
+                    <img
+                      src={user.profilePic}
+                      alt={user.username}
+                      className="w-full h-full object-cover"
+                    />
+                  ) : (
+                    <div className="w-full h-full flex items-center justify-center bg-primary/10 text-primary">
+                      {user.username.charAt(0).toUpperCase()}
+                    </div>
+                  )}
                 </div>
-              </Link>
+                
+                <div>
+                  <h3 className="font-medium">{user.username}</h3>
+                  <p className="text-sm text-muted-foreground">{user.profession}</p>
+                </div>
+              </div>
             ))
           )}
         </div>
@@ -222,14 +249,16 @@ const Search: React.FC = () => {
             </div>
           ) : (
             filteredSkills.map(skill => (
-              <Link to={`/search?skill=${skill.name}`} key={skill.id}>
-                <div className="dev-card p-3">
-                  <h3 className="font-medium">{skill.name}</h3>
-                  <p className="text-sm text-muted-foreground">
-                    {skill.count} developers
-                  </p>
-                </div>
-              </Link>
+              <div 
+                key={skill.id} 
+                className="dev-card p-3 cursor-pointer"
+                onClick={() => handleSkillClick(skill.name)}
+              >
+                <h3 className="font-medium">{skill.name}</h3>
+                <p className="text-sm text-muted-foreground">
+                  {skill.count} developers
+                </p>
+              </div>
             ))
           )}
         </div>
