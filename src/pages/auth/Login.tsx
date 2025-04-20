@@ -35,7 +35,7 @@ const Login: React.FC = () => {
       <div className="w-full max-w-md">
         <div className="text-center mb-8">
           <h1 className="text-3xl font-bold bg-gradient-to-r from-primary to-devpulse-secondary bg-clip-text text-transparent">
-            DevPulse Network
+            DevCollab Network
           </h1>
           <p className="mt-2 text-muted-foreground">
             Connect with developers from around the world

@@ -18,7 +18,7 @@ const Index = () => {
     <div className="min-h-screen flex flex-col items-center justify-center bg-devpulse-background">
       <div className="mb-8 animate-pulse-subtle">
         <h1 className="text-4xl font-bold bg-gradient-to-r from-primary to-devpulse-secondary bg-clip-text text-transparent">
-          DevPulse Network
+          DevCollab Network
         </h1>
         <p className="mt-2 text-center text-muted-foreground">
           Connect with developers from around the world
