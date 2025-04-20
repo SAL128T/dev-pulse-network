@@ -172,10 +172,13 @@ export const PostsProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     setPosts(prev => [post, ...prev]);
   };
 
-  const likePost = (postId: string) => {
+  const likePost = (postId: string, isAlreadyLiked: boolean = false) => {
     setPosts(prev =>
       prev.map(post =>
-        post.id === postId ? { ...post, likes: post.likes + 1 } : post
+        post.id === postId ? { 
+          ...post, 
+          likes: isAlreadyLiked ? Math.max(0, post.likes - 1) : post.likes + 1 
+        } : post
       )
     );
   };

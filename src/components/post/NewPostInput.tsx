@@ -1,6 +1,6 @@
 
 import React, { useState } from 'react';
-import { Image, X, Code, Send } from 'lucide-react';
+import { Image, X, Send } from 'lucide-react';
 import { useAuth } from '@/context/AuthContext';
 import { usePosts } from '@/context/PostsContext';
 
@@ -48,11 +48,6 @@ const NewPostInput: React.FC<NewPostInputProps> = ({ communityId }) => {
 
   const removeImage = () => {
     setImage(null);
-  };
-
-  const addCodeSnippet = () => {
-    setContent(prev => `${prev}\n\`\`\`\nYour code here\n\`\`\``);
-    setIsExpanded(true);
   };
 
   if (!user) return null;
@@ -109,13 +104,6 @@ const NewPostInput: React.FC<NewPostInputProps> = ({ communityId }) => {
                       onChange={handleImageUpload}
                     />
                   </label>
-                  <button
-                    type="button"
-                    className="p-2 text-muted-foreground hover:text-foreground rounded-md transition-colors"
-                    onClick={addCodeSnippet}
-                  >
-                    <Code size={18} />
-                  </button>
                 </div>
                 <button
                   type="submit"

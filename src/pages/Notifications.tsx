@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '@/context/AuthContext';
@@ -57,7 +56,7 @@ const Notifications: React.FC = () => {
       case 'comment':
         return <MessageSquare size={16} className="text-primary" />;
       case 'follow':
-        return <UserIcon size={16} className="text-primary" />;
+        return <User size={16} className="text-primary" />;
       case 'community_request':
         return <Users size={16} className="text-devpulse-secondary" />;
       case 'community_approved':

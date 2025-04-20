@@ -1,7 +1,6 @@
-
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
-import { Heart, MessageSquare, Share2, MoreHorizontal, Code } from 'lucide-react';
+import { Heart, MessageSquare, Share2, MoreHorizontal } from 'lucide-react';
 import { formatDistanceToNow } from 'date-fns';
 import { useAuth } from '@/context/AuthContext';
 import { usePosts, type Post } from '@/context/PostsContext';
@@ -23,8 +22,11 @@ const PostCard: React.FC<PostCardProps> = ({ post }) => {
   const handleLike = () => {
     if (!user) return;
     
+    // Toggle like state
     setIsLiked(!isLiked);
-    likePost(post.id);
+    
+    // Call likePost with the toggle state to either add or remove a like
+    likePost(post.id, isLiked);
     
     // Only send notification if liking (not unliking) and if it's someone else's post
     if (!isLiked && user.id !== post.userId) {
@@ -67,7 +69,6 @@ const PostCard: React.FC<PostCardProps> = ({ post }) => {
     setShowCommentInput(false);
   };
 
-  // Format content text with code highlighting
   const formatContent = (content: string) => {
     const codeBlockRegex = /```([^`]+)```/g;
     const inlineCodeRegex = /`([^`]+)`/g;
@@ -145,11 +146,6 @@ const PostCard: React.FC<PostCardProps> = ({ post }) => {
         >
           <MessageSquare size={18} className="mr-1" />
           <span>{post.comments.length}</span>
-        </button>
-        
-        <button className="flex items-center p-2 hover:text-primary transition-colors">
-          <Code size={18} className="mr-1" />
-          <span>Code</span>
         </button>
         
         <button className="flex items-center p-2 hover:text-primary transition-colors">
