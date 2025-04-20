@@ -20,6 +20,7 @@ import Home from "@/pages/Home";
 import Search from "@/pages/Search";
 import Notifications from "@/pages/Notifications";
 import Chats from "@/pages/Chats";
+import ChatDetail from "@/pages/ChatDetail";
 import Profile from "@/pages/Profile";
 import NotFound from "@/pages/NotFound";
 
@@ -106,6 +107,16 @@ const App = () => (
           <Route path="/chats" element={<Chats />} />
           <Route path="/profile" element={<Profile />} />
         </Route>
+        
+        {/* Chat detail route - separate from AppLayout to use full screen */}
+        <Route 
+          path="/chat/:chatId" 
+          element={
+            <ProtectedRoute>
+              <ChatDetail />
+            </ProtectedRoute>
+          } 
+        />
         
         {/* Default route to login screen */}
         <Route path="/" element={<Navigate to="/auth/login" />} />
