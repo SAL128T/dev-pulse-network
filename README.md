@@ -1,5 +1,4 @@
-
-# Welcome to DevCollab
+# Welcome to your Lovable project
 
 ## Project info
 

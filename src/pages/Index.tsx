@@ -1,30 +1,12 @@
-
-import { useEffect } from "react";
-import { useNavigate } from "react-router-dom";
-import { Loader2 } from "lucide-react";
-import { useAuth } from "@/context/AuthContext";
+// Update this page (the content is just a fallback if you fail to update the page)
 
 const Index = () => {
-  const navigate = useNavigate();
-  const { isAuthenticated, isLoading } = useAuth();
-
-  useEffect(() => {
-    if (!isLoading) {
-      navigate(isAuthenticated ? "/" : "/auth/login");
-    }
-  }, [isLoading, isAuthenticated, navigate]);
-
   return (
-    <div className="min-h-screen flex flex-col items-center justify-center bg-devpulse-background">
-      <div className="mb-8 animate-pulse-subtle">
-        <h1 className="text-4xl font-bold bg-gradient-to-r from-primary to-devpulse-secondary bg-clip-text text-transparent">
-          DevCollab Network
-        </h1>
-        <p className="mt-2 text-center text-muted-foreground">
-          Connect with developers from around the world
-        </p>
+    <div className="min-h-screen flex items-center justify-center bg-gray-100">
+      <div className="text-center">
+        <h1 className="text-4xl font-bold mb-4">Welcome to Your Blank App</h1>
+        <p className="text-xl text-gray-600">Start building your amazing project here!</p>
       </div>
-      <Loader2 className="h-8 w-8 text-primary animate-spin" />
     </div>
   );
 };
