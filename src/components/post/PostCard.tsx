@@ -1,12 +1,13 @@
 
 import React, { useState } from 'react';
-import { Link } from 'react-router-dom';
-import { Heart, MessageSquare, Share2, MoreHorizontal } from 'lucide-react';
 import { formatDistanceToNow } from 'date-fns';
 import { useAuth } from '@/context/AuthContext';
 import { usePosts, type Post } from '@/context/PostsContext';
 import { useNotification } from '@/context/NotificationContext';
 import DevButton from '@/components/ui/dev-button';
+import PostHeader from './PostHeader';
+import PostActions from './PostActions';
+import PostComments from './PostComments';
 
 interface PostCardProps {
   post: Post;
@@ -23,13 +24,9 @@ const PostCard: React.FC<PostCardProps> = ({ post }) => {
   const handleLike = () => {
     if (!user) return;
     
-    // Toggle like state
     setIsLiked(!isLiked);
+    likePost(post.id, isLiked);
     
-    // Call likePost with the toggle state to either add or remove a like
-    likePost(post.id);
-    
-    // Only send notification if liking (not unliking) and if it's someone else's post
     if (!isLiked && user.id !== post.userId) {
       addNotification({
         userId: post.userId,
@@ -54,7 +51,6 @@ const PostCard: React.FC<PostCardProps> = ({ post }) => {
       content: comment,
     });
     
-    // If the user comments on someone else's post, add a notification
     if (user.id !== post.userId) {
       addNotification({
         userId: post.userId,
@@ -71,42 +67,17 @@ const PostCard: React.FC<PostCardProps> = ({ post }) => {
   };
 
   const formatContent = (content: string) => {
-    // Convert newlines to <br> for normal text
     return content.replace(/\n/g, '<br>');
   };
 
   return (
     <div className="dev-card mb-4 animate-fade-in">
-      <div className="flex justify-between items-start mb-3">
-        <div className="flex items-center">
-          <Link to={`/user/${post.userId}`}>
-            <div className="w-10 h-10 rounded-full overflow-hidden bg-muted">
-              {post.userProfilePic ? (
-                <img
-                  src={post.userProfilePic}
-                  alt={post.username}
-                  className="w-full h-full object-cover"
-                />
-              ) : (
-                <div className="w-full h-full flex items-center justify-center bg-primary/10 text-primary">
-                  {post.username.charAt(0).toUpperCase()}
-                </div>
-              )}
-            </div>
-          </Link>
-          <div className="ml-3">
-            <Link to={`/user/${post.userId}`} className="font-medium hover:underline">
-              {post.username}
-            </Link>
-            <div className="text-xs text-muted-foreground">
-              {formatDistanceToNow(new Date(post.createdAt), { addSuffix: true })}
-            </div>
-          </div>
-        </div>
-        <button className="p-1 text-muted-foreground hover:text-foreground rounded-full">
-          <MoreHorizontal size={16} />
-        </button>
-      </div>
+      <PostHeader
+        userId={post.userId}
+        username={post.username}
+        userProfilePic={post.userProfilePic}
+        createdAt={post.createdAt}
+      />
       
       <div className="mb-3">
         <div
@@ -125,27 +96,13 @@ const PostCard: React.FC<PostCardProps> = ({ post }) => {
         </div>
       )}
       
-      <div className="flex justify-between items-center text-sm text-muted-foreground pt-2 border-t border-border">
-        <button
-          className={`flex items-center p-2 transition-colors ${isLiked ? 'text-primary' : 'hover:text-primary'}`}
-          onClick={handleLike}
-        >
-          <Heart size={18} className="mr-1" />
-          <span>{post.likes}</span>
-        </button>
-        
-        <button
-          className="flex items-center p-2 hover:text-primary transition-colors"
-          onClick={() => setShowCommentInput(!showCommentInput)}
-        >
-          <MessageSquare size={18} className="mr-1" />
-          <span>{post.comments.length}</span>
-        </button>
-        
-        <button className="flex items-center p-2 hover:text-primary transition-colors">
-          <Share2 size={18} />
-        </button>
-      </div>
+      <PostActions
+        likes={post.likes}
+        commentsCount={post.comments.length}
+        isLiked={isLiked}
+        onLikeClick={handleLike}
+        onCommentClick={() => setShowCommentInput(!showCommentInput)}
+      />
       
       {showCommentInput && (
         <form onSubmit={handleCommentSubmit} className="mt-3">
@@ -164,50 +121,7 @@ const PostCard: React.FC<PostCardProps> = ({ post }) => {
         </form>
       )}
       
-      {post.comments.length > 0 && (
-        <div className="mt-3 pt-2 border-t border-border">
-          <h4 className="text-xs font-medium text-muted-foreground mb-2">
-            Comments ({post.comments.length})
-          </h4>
-          
-          {post.comments.slice(0, 2).map((comment) => (
-            <div key={comment.id} className="flex items-start mb-2">
-              <Link to={`/user/${comment.userId}`}>
-                <div className="w-8 h-8 rounded-full overflow-hidden bg-muted mr-2">
-                  {comment.userProfilePic ? (
-                    <img
-                      src={comment.userProfilePic}
-                      alt={comment.username}
-                      className="w-full h-full object-cover"
-                    />
-                  ) : (
-                    <div className="w-full h-full flex items-center justify-center bg-primary/10 text-primary">
-                      {comment.username.charAt(0).toUpperCase()}
-                    </div>
-                  )}
-                </div>
-              </Link>
-              <div className="flex-1">
-                <div className="bg-muted rounded-md p-2">
-                  <Link to={`/user/${comment.userId}`} className="font-medium text-xs hover:underline">
-                    {comment.username}
-                  </Link>
-                  <div className="text-sm mt-1">{comment.content}</div>
-                </div>
-                <div className="text-xs text-muted-foreground mt-1">
-                  {formatDistanceToNow(new Date(comment.createdAt), { addSuffix: true })}
-                </div>
-              </div>
-            </div>
-          ))}
-          
-          {post.comments.length > 2 && (
-            <Link to={`/post/${post.id}`} className="text-xs text-primary hover:underline">
-              View all {post.comments.length} comments
-            </Link>
-          )}
-        </div>
-      )}
+      <PostComments comments={post.comments} postId={post.id} />
     </div>
   );
 };
