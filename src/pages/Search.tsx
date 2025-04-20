@@ -1,6 +1,6 @@
 
 import React, { useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { Search as SearchIcon, Users, Code, X } from 'lucide-react';
 import { useCommunity } from '@/context/CommunityContext';
 
@@ -116,7 +116,7 @@ const Search: React.FC = () => {
           ) : (
             filteredUsers.map(user => (
               <Link to={`/user/${user.id}`} key={user.id}>
-                <div className="dev-card p-3 flex items-center">
+                <div className="dev-card p-3 flex items-center hover:bg-muted/50 transition-colors">
                   <div className="w-12 h-12 rounded-full overflow-hidden bg-muted mr-3">
                     {user.profilePic ? (
                       <img

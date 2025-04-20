@@ -1,11 +1,11 @@
 
 import React from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '@/context/AuthContext';
 import { useNotification } from '@/context/NotificationContext';
 import { formatDistanceToNow } from 'date-fns';
 import { 
-  Heart, MessageSquare, UserPlus, CheckCircle, Mail, Users, 
+  Heart, MessageSquare, user as UserIcon, CheckCircle, Mail, Users, 
   Check, Bell, BellOff
 } from 'lucide-react';
 import DevButton from '@/components/ui/dev-button';
@@ -13,6 +13,7 @@ import DevButton from '@/components/ui/dev-button';
 const Notifications: React.FC = () => {
   const { user } = useAuth();
   const { userNotifications, markAsRead, markAllAsRead } = useNotification();
+  const navigate = useNavigate();
   
   if (!user) {
     return null;
@@ -21,6 +22,34 @@ const Notifications: React.FC = () => {
   const notifications = userNotifications(user.id);
   const unreadCount = notifications.filter(n => !n.read).length;
 
+  const handleNotificationClick = (notification: any) => {
+    markAsRead(notification.id);
+    
+    // Navigate based on notification type
+    switch (notification.type) {
+      case 'follow':
+        navigate(`/user/${notification.fromUserId}`);
+        break;
+      case 'like':
+      case 'comment':
+        if (notification.entityId) {
+          navigate(`/post/${notification.entityId}`);
+        }
+        break;
+      case 'community_request':
+      case 'community_approved':
+        if (notification.entityId) {
+          navigate(`/community/${notification.entityId}`);
+        }
+        break;
+      case 'message':
+        navigate(`/chat/${notification.fromUserId}`);
+        break;
+      default:
+        break;
+    }
+  };
+
   const getNotificationIcon = (type: string) => {
     switch (type) {
       case 'like':
@@ -28,7 +57,7 @@ const Notifications: React.FC = () => {
       case 'comment':
         return <MessageSquare size={16} className="text-primary" />;
       case 'follow':
-        return <UserPlus size={16} className="text-primary" />;
+        return <UserIcon size={16} className="text-primary" />;
       case 'community_request':
         return <Users size={16} className="text-devpulse-secondary" />;
       case 'community_approved':
@@ -62,10 +91,10 @@ const Notifications: React.FC = () => {
           {notifications.map(notification => (
             <div
               key={notification.id}
-              className={`dev-card p-3 flex items-start ${
+              className={`dev-card p-3 flex items-start cursor-pointer hover:bg-muted/50 transition-colors ${
                 !notification.read ? 'border-l-4 border-l-primary' : ''
               }`}
-              onClick={() => !notification.read && markAsRead(notification.id)}
+              onClick={() => handleNotificationClick(notification)}
             >
               <div className="mr-3 p-2 rounded-full bg-muted flex-shrink-0">
                 {getNotificationIcon(notification.type)}
@@ -74,9 +103,9 @@ const Notifications: React.FC = () => {
               <div className="flex-1">
                 <div className="flex justify-between items-start">
                   <div className="mb-1">
-                    <Link to={`/user/${notification.fromUserId}`} className="font-medium hover:underline">
+                    <span className="font-medium">
                       {notification.fromUsername}
-                    </Link>
+                    </span>
                     <span className="text-sm text-muted-foreground ml-1">
                       {notification.content}
                     </span>

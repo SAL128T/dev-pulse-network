@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { Heart, MessageSquare, Share2, MoreHorizontal, Code } from 'lucide-react';
@@ -14,35 +13,28 @@ interface PostCardProps {
 
 const PostCard: React.FC<PostCardProps> = ({ post }) => {
   const { user } = useAuth();
-  const { likePost, addComment } = usePosts();
+  const { likePost } = usePosts();
   const { addNotification } = useNotification();
   const [comment, setComment] = useState('');
   const [showCommentInput, setShowCommentInput] = useState(false);
-  const [hasLiked, setHasLiked] = useState(false);
+  const [isLiked, setIsLiked] = useState(false);
 
   const handleLike = () => {
     if (!user) return;
     
-    // Only add a like if user hasn't liked the post yet
-    if (!hasLiked) {
-      likePost(post.id);
-      setHasLiked(true);
-      
-      // If the user likes someone else's post, add a notification
-      if (user.id !== post.userId) {
-        addNotification({
-          userId: post.userId,
-          type: 'like',
-          fromUserId: user.id,
-          fromUsername: user.username,
-          entityId: post.id,
-          content: `liked your post`,
-        });
-      }
-    } else {
-      // In a full implementation, we would remove the like here
-      // For now, we just prevent adding more likes
-      console.log("User has already liked this post");
+    setIsLiked(!isLiked);
+    likePost(post.id);
+    
+    // Only send notification if liking (not unliking) and if it's someone else's post
+    if (!isLiked && user.id !== post.userId) {
+      addNotification({
+        userId: post.userId,
+        type: 'like',
+        fromUserId: user.id,
+        fromUsername: user.username,
+        entityId: post.id,
+        content: `liked your post`,
+      });
     }
   };
 
@@ -139,7 +131,7 @@ const PostCard: React.FC<PostCardProps> = ({ post }) => {
       
       <div className="flex justify-between items-center text-sm text-muted-foreground pt-2 border-t border-border">
         <button
-          className={`flex items-center p-2 transition-colors ${hasLiked ? 'text-primary' : 'hover:text-primary'}`}
+          className={`flex items-center p-2 transition-colors ${isLiked ? 'text-primary' : 'hover:text-primary'}`}
           onClick={handleLike}
         >
           <Heart size={18} className="mr-1" />
