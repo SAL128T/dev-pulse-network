@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { Heart, MessageSquare, Share2, MoreHorizontal, Code } from 'lucide-react';
@@ -13,7 +14,7 @@ interface PostCardProps {
 
 const PostCard: React.FC<PostCardProps> = ({ post }) => {
   const { user } = useAuth();
-  const { likePost } = usePosts();
+  const { likePost, addComment } = usePosts();
   const { addNotification } = useNotification();
   const [comment, setComment] = useState('');
   const [showCommentInput, setShowCommentInput] = useState(false);

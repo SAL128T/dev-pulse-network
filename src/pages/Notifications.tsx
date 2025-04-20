@@ -5,7 +5,7 @@ import { useAuth } from '@/context/AuthContext';
 import { useNotification } from '@/context/NotificationContext';
 import { formatDistanceToNow } from 'date-fns';
 import { 
-  Heart, MessageSquare, user as UserIcon, CheckCircle, Mail, Users, 
+  Heart, MessageSquare, User, CheckCircle, Mail, Users, 
   Check, Bell, BellOff
 } from 'lucide-react';
 import DevButton from '@/components/ui/dev-button';
